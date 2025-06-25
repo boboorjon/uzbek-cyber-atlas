@@ -16,6 +16,7 @@ const Layout = ({ children }: LayoutProps) => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: BookOpen },
     { name: 'Courses', href: '/courses', icon: Shield },
+    { name: 'Modules', href: '/modules', icon: BookOpen },
     { name: 'Achievements', href: '/achievements', icon: Trophy },
     { name: 'Profile', href: '/profile', icon: User },
   ];

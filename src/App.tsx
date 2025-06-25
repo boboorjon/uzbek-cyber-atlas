@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import Modules from "./pages/Modules";
+import Lesson from "./pages/Lesson";
 import CourseDetail from "./pages/CourseDetail";
 import Achievements from "./pages/Achievements";
 import Profile from "./pages/Profile";
@@ -23,6 +25,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/modules" element={<Modules />} />
+            <Route path="/lesson/:id" element={<Lesson />} />
             <Route path="/course/:id" element={<CourseDetail />} />
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/profile" element={<Profile />} />

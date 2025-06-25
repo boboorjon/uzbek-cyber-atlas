@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface Particle {
@@ -30,19 +29,32 @@ const ParticleBackground = () => {
 
     const createParticles = () => {
       const particles: Particle[] = [];
-      const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
+      // Increased density: more particles per area
+      const particleCount = Math.floor((canvas.width * canvas.height) / 8000);
       
-      for (let i = 0; i < particleCount; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        particles.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          originalX: x,
-          originalY: y,
-        });
+      // Create grid-based distribution for more uniform coverage
+      const cols = Math.ceil(Math.sqrt(particleCount * (canvas.width / canvas.height)));
+      const rows = Math.ceil(particleCount / cols);
+      const cellWidth = canvas.width / cols;
+      const cellHeight = canvas.height / rows;
+      
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          if (particles.length >= particleCount) break;
+          
+          // Add some randomness within each grid cell
+          const x = (i * cellWidth) + (Math.random() * cellWidth * 0.8) + (cellWidth * 0.1);
+          const y = (j * cellHeight) + (Math.random() * cellHeight * 0.8) + (cellHeight * 0.1);
+          
+          particles.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
+            originalX: x,
+            originalY: y,
+          });
+        }
       }
       
       particlesRef.current = particles;
@@ -53,9 +65,9 @@ const ParticleBackground = () => {
       
       const particles = particlesRef.current;
       
-      // Draw connections
-      ctx.strokeStyle = 'rgba(255, 215, 0, 0.1)';
-      ctx.lineWidth = 1;
+      // Draw connections first (behind particles)
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.08)';
+      ctx.lineWidth = 0.5;
       
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -63,8 +75,9 @@ const ParticleBackground = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 120) {
-            const opacity = (120 - distance) / 120 * 0.2;
+          // Increased connection distance for better network effect
+          if (distance < 150) {
+            const opacity = (150 - distance) / 150 * 0.15;
             ctx.strokeStyle = `rgba(255, 215, 0, ${opacity})`;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -74,11 +87,11 @@ const ParticleBackground = () => {
         }
       }
       
-      // Draw particles
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+      // Draw particles (smaller and more subtle)
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
       particles.forEach(particle => {
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, 1.5, 0, Math.PI * 2);
         ctx.fill();
       });
     };
@@ -88,19 +101,19 @@ const ParticleBackground = () => {
       const mouse = mouseRef.current;
       
       particles.forEach(particle => {
-        // Mouse repulsion
+        // Mouse repulsion with gentler effect
         const dx = particle.x - mouse.x;
         const dy = particle.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 100) {
-          const force = (100 - distance) / 100;
-          particle.vx += (dx / distance) * force * 0.2;
-          particle.vy += (dy / distance) * force * 0.2;
+        if (distance < 120) {
+          const force = (120 - distance) / 120;
+          particle.vx += (dx / distance) * force * 0.15;
+          particle.vy += (dy / distance) * force * 0.15;
         }
         
-        // Return to original position
-        const returnForce = 0.02;
+        // Return to original position (gentler pull)
+        const returnForce = 0.015;
         particle.vx += (particle.originalX - particle.x) * returnForce;
         particle.vy += (particle.originalY - particle.y) * returnForce;
         
@@ -108,13 +121,27 @@ const ParticleBackground = () => {
         particle.x += particle.vx;
         particle.y += particle.vy;
         
-        // Damping
-        particle.vx *= 0.95;
-        particle.vy *= 0.95;
+        // Stronger damping for smoother movement
+        particle.vx *= 0.92;
+        particle.vy *= 0.92;
         
-        // Boundary check
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -0.5;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -0.5;
+        // Boundary constraints (keep particles on screen)
+        if (particle.x < 0) {
+          particle.x = 0;
+          particle.vx *= -0.3;
+        }
+        if (particle.x > canvas.width) {
+          particle.x = canvas.width;
+          particle.vx *= -0.3;
+        }
+        if (particle.y < 0) {
+          particle.y = 0;
+          particle.vy *= -0.3;
+        }
+        if (particle.y > canvas.height) {
+          particle.y = canvas.height;
+          particle.vy *= -0.3;
+        }
       });
     };
 
