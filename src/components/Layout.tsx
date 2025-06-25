@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, BookOpen, Trophy, Settings, User, Menu, X } from 'lucide-react';
+import { Shield, BookOpen, Trophy, Settings, User, Menu, X, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import ParticleBackground from './ParticleBackground';
@@ -17,6 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
     { name: 'Dashboard', href: '/', icon: BookOpen },
     { name: 'Courses', href: '/courses', icon: Shield },
     { name: 'Modules', href: '/modules', icon: BookOpen },
+    { name: 'Challenges', href: '/challenges', icon: Target },
     { name: 'Achievements', href: '/achievements', icon: Trophy },
     { name: 'Profile', href: '/profile', icon: User },
   ];
@@ -138,8 +140,8 @@ const Layout = ({ children }: LayoutProps) => {
               <h4 className="font-semibold mb-3">Learning</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/courses" className="hover:text-primary transition-colors">All Courses</Link></li>
+                <li><Link to="/challenges" className="hover:text-primary transition-colors">Challenges</Link></li>
                 <li><Link to="/achievements" className="hover:text-primary transition-colors">Certifications</Link></li>
-                <li><Link to="/practice" className="hover:text-primary transition-colors">Practice Labs</Link></li>
               </ul>
             </div>
             

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 interface Particle {
@@ -7,6 +8,7 @@ interface Particle {
   vy: number;
   originalX: number;
   originalY: number;
+  size: number;
 }
 
 const ParticleBackground = () => {
@@ -29,32 +31,25 @@ const ParticleBackground = () => {
 
     const createParticles = () => {
       const particles: Particle[] = [];
-      // Increased density: more particles per area
-      const particleCount = Math.floor((canvas.width * canvas.height) / 8000);
+      // Significantly increased particle density for more immersive effect
+      const particleCount = Math.floor((canvas.width * canvas.height) / 4000);
       
-      // Create grid-based distribution for more uniform coverage
-      const cols = Math.ceil(Math.sqrt(particleCount * (canvas.width / canvas.height)));
-      const rows = Math.ceil(particleCount / cols);
-      const cellWidth = canvas.width / cols;
-      const cellHeight = canvas.height / rows;
-      
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          if (particles.length >= particleCount) break;
-          
-          // Add some randomness within each grid cell
-          const x = (i * cellWidth) + (Math.random() * cellWidth * 0.8) + (cellWidth * 0.1);
-          const y = (j * cellHeight) + (Math.random() * cellHeight * 0.8) + (cellHeight * 0.1);
-          
-          particles.push({
-            x,
-            y,
-            vx: (Math.random() - 0.5) * 0.3,
-            vy: (Math.random() - 0.5) * 0.3,
-            originalX: x,
-            originalY: y,
-          });
-        }
+      for (let i = 0; i < particleCount; i++) {
+        // Completely random positioning for organic feel
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        // Random sizes for dynamic effect (0.5 to 3px)
+        const size = Math.random() * 2.5 + 0.5;
+        
+        particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          originalX: x,
+          originalY: y,
+          size,
+        });
       }
       
       particlesRef.current = particles;
@@ -66,8 +61,7 @@ const ParticleBackground = () => {
       const particles = particlesRef.current;
       
       // Draw connections first (behind particles)
-      ctx.strokeStyle = 'rgba(255, 215, 0, 0.08)';
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.3;
       
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -75,9 +69,11 @@ const ParticleBackground = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          // Increased connection distance for better network effect
-          if (distance < 150) {
-            const opacity = (150 - distance) / 150 * 0.15;
+          // Variable connection distance based on particle sizes
+          const maxDistance = 100 + (particles[i].size + particles[j].size) * 10;
+          
+          if (distance < maxDistance) {
+            const opacity = (maxDistance - distance) / maxDistance * 0.12;
             ctx.strokeStyle = `rgba(255, 215, 0, ${opacity})`;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -87,11 +83,12 @@ const ParticleBackground = () => {
         }
       }
       
-      // Draw particles (smaller and more subtle)
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
+      // Draw particles with varying sizes and opacity
       particles.forEach(particle => {
+        const opacity = 0.3 + (particle.size / 3) * 0.4; // Larger particles are more visible
+        ctx.fillStyle = `rgba(255, 215, 0, ${opacity})`;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, 1.5, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fill();
       });
     };
@@ -101,47 +98,44 @@ const ParticleBackground = () => {
       const mouse = mouseRef.current;
       
       particles.forEach(particle => {
-        // Mouse repulsion with gentler effect
+        // Enhanced mouse repulsion with size-based force
         const dx = particle.x - mouse.x;
         const dy = particle.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 120) {
-          const force = (120 - distance) / 120;
-          particle.vx += (dx / distance) * force * 0.15;
-          particle.vy += (dy / distance) * force * 0.15;
+        // Repulsion zone varies by particle size
+        const repulsionRadius = 80 + particle.size * 20;
+        
+        if (distance < repulsionRadius && distance > 0) {
+          const force = (repulsionRadius - distance) / repulsionRadius;
+          const repulsionStrength = 0.2 * (1 + particle.size * 0.3);
+          particle.vx += (dx / distance) * force * repulsionStrength;
+          particle.vy += (dy / distance) * force * repulsionStrength;
         }
         
-        // Return to original position (gentler pull)
-        const returnForce = 0.015;
+        // Gentle drift back to original position
+        const returnForce = 0.01 * (1 + particle.size * 0.1);
         particle.vx += (particle.originalX - particle.x) * returnForce;
         particle.vy += (particle.originalY - particle.y) * returnForce;
+        
+        // Natural floating motion
+        particle.vx += (Math.random() - 0.5) * 0.02;
+        particle.vy += (Math.random() - 0.5) * 0.02;
         
         // Apply velocity
         particle.x += particle.vx;
         particle.y += particle.vy;
         
-        // Stronger damping for smoother movement
-        particle.vx *= 0.92;
-        particle.vy *= 0.92;
+        // Size-based damping
+        const damping = 0.94 - (particle.size * 0.01);
+        particle.vx *= damping;
+        particle.vy *= damping;
         
-        // Boundary constraints (keep particles on screen)
-        if (particle.x < 0) {
-          particle.x = 0;
-          particle.vx *= -0.3;
-        }
-        if (particle.x > canvas.width) {
-          particle.x = canvas.width;
-          particle.vx *= -0.3;
-        }
-        if (particle.y < 0) {
-          particle.y = 0;
-          particle.vy *= -0.3;
-        }
-        if (particle.y > canvas.height) {
-          particle.y = canvas.height;
-          particle.vy *= -0.3;
-        }
+        // Boundary wrapping for seamless effect
+        if (particle.x < -10) particle.x = canvas.width + 10;
+        if (particle.x > canvas.width + 10) particle.x = -10;
+        if (particle.y < -10) particle.y = canvas.height + 10;
+        if (particle.y > canvas.height + 10) particle.y = -10;
       });
     };
 
