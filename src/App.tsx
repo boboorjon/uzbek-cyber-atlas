@@ -14,6 +14,7 @@ import Challenges from "./pages/Challenges";
 import Achievements from "./pages/Achievements";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import AdminPanel from "@/pages/AdminPanel.tsx";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/modules" element={<Modules />} />
             <Route path="/lesson/:id" element={<Lesson />} />

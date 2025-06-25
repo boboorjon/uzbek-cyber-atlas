@@ -1,21 +1,30 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface Particle {
   x: number;
   y: number;
+  z: number; // 3D depth
   vx: number;
   vy: number;
+  vz: number; // 3D velocity
   originalX: number;
   originalY: number;
+  originalZ: number;
   size: number;
+  baseSize: number;
+  opacity: number;
+  hue: number; // For color variation
+  rotationSpeed: number;
+  rotation: number;
+  colorType: number; // 0 = gold, 1 = white, 2 = gray
 }
 
-const ParticleBackground = () => {
+const Enhanced3DParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationIdRef = useRef<number>();
+  const timeRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,112 +40,234 @@ const ParticleBackground = () => {
 
     const createParticles = () => {
       const particles: Particle[] = [];
-      // Significantly increased particle density for more immersive effect
-      const particleCount = Math.floor((canvas.width * canvas.height) / 4000);
-      
+      // Increased particle count for more immersive effect
+      const particleCount = Math.floor((canvas.width * canvas.height) / 3000);
+
       for (let i = 0; i < particleCount; i++) {
-        // Completely random positioning for organic feel
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height;
-        // Random sizes for dynamic effect (0.5 to 3px)
-        const size = Math.random() * 2.5 + 0.5;
-        
+        const z = Math.random() * 1000 + 100; // Depth from 100 to 1100
+        const baseSize = Math.random() * 2 + 1;
+
         particles.push({
           x,
           y,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
+          z,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8,
+          vz: (Math.random() - 0.5) * 0.3,
           originalX: x,
           originalY: y,
-          size,
+          originalZ: z,
+          size: baseSize,
+          baseSize,
+          opacity: Math.random() * 0.6 + 0.4,
+          hue: 0, // Not used anymore, keeping for compatibility
+          rotationSpeed: (Math.random() - 0.5) * 0.03,
+          rotation: Math.random() * Math.PI * 2,
+          colorType: Math.floor(Math.random() * 3), // Random color type
         });
       }
-      
+
       particlesRef.current = particles;
+    };
+
+    const get3DProjection = (particle: Particle) => {
+      // Simple 3D to 2D projection
+      const perspective = 800;
+      const scale = perspective / (perspective + particle.z);
+      return {
+        x: particle.x,
+        y: particle.y,
+        scale,
+        size: particle.baseSize * scale,
+        opacity: particle.opacity * scale
+      };
+    };
+
+    const getParticleColors = (colorType: number, baseOpacity: number) => {
+      switch (colorType) {
+        case 0: // Gold
+          return {
+            outer: `rgba(255, 215, 0, ${baseOpacity})`,
+            middle: `rgba(255, 193, 7, ${baseOpacity * 0.8})`,
+            inner: `rgba(255, 140, 0, ${baseOpacity * 0.6})`,
+            core: `rgba(184, 134, 11, ${baseOpacity * 0.4})`
+          };
+        case 1: // White
+          return {
+            outer: `rgba(255, 255, 255, ${baseOpacity})`,
+            middle: `rgba(248, 250, 252, ${baseOpacity * 0.8})`,
+            inner: `rgba(241, 245, 249, ${baseOpacity * 0.6})`,
+            core: `rgba(203, 213, 225, ${baseOpacity * 0.4})`
+          };
+        case 2: // Gray
+        default:
+          return {
+            outer: `rgba(156, 163, 175, ${baseOpacity})`,
+            middle: `rgba(107, 114, 128, ${baseOpacity * 0.8})`,
+            inner: `rgba(75, 85, 99, ${baseOpacity * 0.6})`,
+            core: `rgba(55, 65, 81, ${baseOpacity * 0.4})`
+          };
+      }
     };
 
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       const particles = particlesRef.current;
-      
-      // Draw connections first (behind particles)
-      ctx.lineWidth = 0.3;
-      
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Variable connection distance based on particle sizes
-          const maxDistance = 100 + (particles[i].size + particles[j].size) * 10;
-          
+      const time = timeRef.current;
+
+      // Sort particles by depth (furthest first)
+      const sortedParticles = [...particles].sort((a, b) => b.z - a.z);
+
+      // Draw connections first with softer colors
+      ctx.lineWidth = 0.5;
+
+      for (let i = 0; i < sortedParticles.length; i++) {
+        const particleA = sortedParticles[i];
+        const projA = get3DProjection(particleA);
+
+        for (let j = i + 1; j < sortedParticles.length; j++) {
+          const particleB = sortedParticles[j];
+          const projB = get3DProjection(particleB);
+
+          const dx = projA.x - projB.x;
+          const dy = projA.y - projB.y;
+          const dz = Math.abs(particleA.z - particleB.z);
+          const distance = Math.sqrt(dx * dx + dy * dy + dz * 0.1);
+
+          const maxDistance = 120;
+
           if (distance < maxDistance) {
-            const opacity = (maxDistance - distance) / maxDistance * 0.12;
-            ctx.strokeStyle = `rgba(255, 215, 0, ${opacity})`;
+            const opacity = (maxDistance - distance) / maxDistance * 0.15 * (projA.scale + projB.scale) * 0.5;
+            // Soft connection lines with subtle gold tint
+            ctx.strokeStyle = `rgba(156, 163, 175, ${opacity})`;
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.moveTo(projA.x, projA.y);
+            ctx.lineTo(projB.x, projB.y);
             ctx.stroke();
           }
         }
       }
-      
-      // Draw particles with varying sizes and opacity
-      particles.forEach(particle => {
-        const opacity = 0.3 + (particle.size / 3) * 0.4; // Larger particles are more visible
-        ctx.fillStyle = `rgba(255, 215, 0, ${opacity})`;
+
+      // Draw particles with beautiful colors
+      sortedParticles.forEach(particle => {
+        const proj = get3DProjection(particle);
+        const pulse = Math.sin(time * 0.002 + particle.rotation) * 0.2 + 1;
+        const baseOpacity = proj.opacity * pulse * 0.9;
+
+        const colors = getParticleColors(particle.colorType, baseOpacity);
+
+        // Create gradient for 3D sphere effect
+        const gradient = ctx.createRadialGradient(
+            proj.x - proj.size * 0.3,
+            proj.y - proj.size * 0.3,
+            0,
+            proj.x,
+            proj.y,
+            proj.size * 1.2
+        );
+
+        gradient.addColorStop(0, colors.outer);
+        gradient.addColorStop(0.3, colors.middle);
+        gradient.addColorStop(0.7, colors.inner);
+        gradient.addColorStop(1, colors.core);
+
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.arc(proj.x, proj.y, proj.size * pulse, 0, Math.PI * 2);
         ctx.fill();
+
+        // Add subtle glow effect
+        ctx.shadowColor = colors.outer;
+        ctx.shadowBlur = proj.size * 2;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+
+        ctx.fillStyle = colors.inner;
+        ctx.beginPath();
+        ctx.arc(proj.x, proj.y, proj.size * pulse * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Reset shadow
+        ctx.shadowBlur = 0;
+
+        // Update particle rotation
+        particle.rotation += particle.rotationSpeed;
       });
     };
 
     const updateParticles = () => {
       const particles = particlesRef.current;
       const mouse = mouseRef.current;
-      
+      const time = timeRef.current;
+
       particles.forEach(particle => {
-        // Enhanced mouse repulsion with size-based force
-        const dx = particle.x - mouse.x;
-        const dy = particle.y - mouse.y;
+        // Enhanced 3D mouse repulsion
+        const proj = get3DProjection(particle);
+        const dx = proj.x - mouse.x;
+        const dy = proj.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        // Repulsion zone varies by particle size
-        const repulsionRadius = 80 + particle.size * 20;
-        
+
+        const repulsionRadius = 120 + particle.size * 30;
+
         if (distance < repulsionRadius && distance > 0) {
           const force = (repulsionRadius - distance) / repulsionRadius;
-          const repulsionStrength = 0.2 * (1 + particle.size * 0.3);
-          particle.vx += (dx / distance) * force * repulsionStrength;
-          particle.vy += (dy / distance) * force * repulsionStrength;
+          const repulsionStrength = 0.4 * proj.scale;
+          const forceX = (dx / distance) * force * repulsionStrength;
+          const forceY = (dy / distance) * force * repulsionStrength;
+
+          particle.vx += forceX;
+          particle.vy += forceY;
+          particle.vz += force * 0.1; // Push away in 3D space
         }
-        
-        // Gentle drift back to original position
-        const returnForce = 0.01 * (1 + particle.size * 0.1);
+
+        // Gentle drift back to original position in 3D
+        const returnForce = 0.008;
         particle.vx += (particle.originalX - particle.x) * returnForce;
         particle.vy += (particle.originalY - particle.y) * returnForce;
-        
-        // Natural floating motion
-        particle.vx += (Math.random() - 0.5) * 0.02;
-        particle.vy += (Math.random() - 0.5) * 0.02;
-        
+        particle.vz += (particle.originalZ - particle.z) * returnForce * 0.5;
+
+        // Enhanced chaotic movement
+        const chaosX = (Math.random() - 0.5) * 0.3;
+        const chaosY = (Math.random() - 0.5) * 0.3;
+        const chaosZ = (Math.random() - 0.5) * 0.15;
+
+        particle.vx += chaosX;
+        particle.vy += chaosY;
+        particle.vz += chaosZ;
+
+        // Natural floating motion with stronger time-based waves
+        const waveX = Math.sin(time * 0.003 + particle.originalX * 0.01) * 0.25;
+        const waveY = Math.cos(time * 0.0035 + particle.originalY * 0.01) * 0.25;
+        const waveZ = Math.sin(time * 0.002 + particle.originalZ * 0.01) * 0.12;
+
+        particle.vx += waveX;
+        particle.vy += waveY;
+        particle.vz += waveZ;
+
         // Apply velocity
         particle.x += particle.vx;
         particle.y += particle.vy;
-        
-        // Size-based damping
-        const damping = 0.94 - (particle.size * 0.01);
+        particle.z += particle.vz;
+
+        // 3D damping (slightly reduced for more movement)
+        const damping = 0.92;
         particle.vx *= damping;
         particle.vy *= damping;
-        
+        particle.vz *= damping;
+
         // Boundary wrapping for seamless effect
-        if (particle.x < -10) particle.x = canvas.width + 10;
-        if (particle.x > canvas.width + 10) particle.x = -10;
-        if (particle.y < -10) particle.y = canvas.height + 10;
-        if (particle.y > canvas.height + 10) particle.y = -10;
+        if (particle.x < -50) particle.x = canvas.width + 50;
+        if (particle.x > canvas.width + 50) particle.x = -50;
+        if (particle.y < -50) particle.y = canvas.height + 50;
+        if (particle.y > canvas.height + 50) particle.y = -50;
+        if (particle.z < 50) particle.z = 1150;
+        if (particle.z > 1150) particle.z = 50;
       });
+
+      timeRef.current += 1;
     };
 
     const animate = () => {
@@ -176,12 +307,17 @@ const ParticleBackground = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: 'transparent' }}
-    />
+      <div className="fixed inset-0 overflow-hidden">
+        {/* Dark soft background with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800"></div>
+
+        <canvas
+            ref={canvasRef}
+            className="absolute inset-0 pointer-events-none z-10"
+            style={{ background: 'transparent' }}
+        />
+      </div>
   );
 };
 
-export default ParticleBackground;
+export default Enhanced3DParticleBackground;

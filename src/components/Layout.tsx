@@ -156,7 +156,7 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
           
           <div className="border-t border-border/40 mt-8 pt-6 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 CyberAcademy Uzbekistan. All rights reserved.</p>
+            <p>&copy; 2025 CyberAcademy Uzbekistan. All rights reserved.</p>
           </div>
         </div>
       </footer>
