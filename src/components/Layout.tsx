@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, BookOpen, Trophy, Settings, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import ParticleBackground from './ParticleBackground';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,7 +23,10 @@ const Layout = ({ children }: LayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-background uzbek-pattern">
+    <div className="min-h-screen bg-background relative">
+      {/* Particle Background */}
+      <ParticleBackground />
+      
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
@@ -111,12 +114,12 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 bg-card/30 backdrop-blur">
+      <footer className="border-t border-border/40 bg-card/30 backdrop-blur relative z-10">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
