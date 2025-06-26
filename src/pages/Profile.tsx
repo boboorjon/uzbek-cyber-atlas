@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -131,12 +130,12 @@ const Profile = () => {
           color: 'rgba(243, 244, 246, 0.9)',
           font: {
             size: 12,
-            weight: 'bold'
+            weight: 'bold' as const
           }
         }
       }
     }
-  };
+  } as const;
 
   const completedCourses = [
     {
