@@ -31,11 +31,11 @@ const Layout = ({ children }: LayoutProps) => {
   }, [location]);
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: BookOpen, public: false },
-    { name: 'Modules', href: '/modules', icon: BookOpen, public: false },
-    { name: 'Challenges', href: '/challenges', icon: Target, public: false },
-    { name: 'Rating', href: '/rating', icon: TrendingUp, public: false },
-    { name: 'Achievements', href: '/achievements', icon: Trophy, public: false },
+    { name: 'Boshqaruv paneli', href: '/dashboard', icon: BookOpen, public: false },
+    { name: 'Moullar', href: '/modules', icon: BookOpen, public: false },
+    { name: 'Topshiriqlar', href: '/challenges', icon: Target, public: false },
+    { name: 'Reyting', href: '/rating', icon: TrendingUp, public: false },
+    { name: 'Yutuqlar', href: '/achievements', icon: Trophy, public: false },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -88,8 +88,8 @@ const Layout = ({ children }: LayoutProps) => {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-foreground">CyberAcademy</span>
-                <span className="text-xs text-muted-foreground">Uzbek Security Institute</span>
+                <span className="text-xl font-bold text-foreground">KiberAkademiya</span>
+                <span className="text-xs text-muted-foreground">Milliy o'quv platforma</span>
               </div>
             </Link>
 
@@ -139,20 +139,20 @@ const Layout = ({ children }: LayoutProps) => {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => navigate('/profile')}>
                       <User className="h-4 w-4 mr-2" />
-                      Profile
+                      Profil
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/access')}>
                       <Wifi className="h-4 w-4 mr-2" />
-                      Access
+                      Ulanish
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/manage-account')}>
                       <Settings className="h-4 w-4 mr-2" />
-                      Manage Account
+                      Hisobni boshqarish
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      Chiqish
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
