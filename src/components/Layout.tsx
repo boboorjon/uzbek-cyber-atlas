@@ -1,11 +1,17 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, BookOpen, Trophy, Settings, User, Menu, X, Target, Home, LogOut, TrendingUp } from 'lucide-react';
+import { Shield, BookOpen, Trophy, User, Menu, X, Target, LogOut, TrendingUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import ParticleBackground from './ParticleBackground';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,13 +30,11 @@ const Layout = ({ children }: LayoutProps) => {
   }, [location]);
 
   const navigation = [
-    { name: 'Home', href: '/', icon: Home, public: true },
     { name: 'Dashboard', href: '/dashboard', icon: BookOpen, public: false },
     { name: 'Modules', href: '/modules', icon: BookOpen, public: false },
     { name: 'Challenges', href: '/challenges', icon: Target, public: false },
     { name: 'Rating', href: '/rating', icon: TrendingUp, public: false },
     { name: 'Achievements', href: '/achievements', icon: Trophy, public: false },
-    { name: 'Profile', href: '/profile', icon: User, public: false },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -46,6 +50,11 @@ const Layout = ({ children }: LayoutProps) => {
       description: "You have been logged out of CyberAcademy.",
     });
     navigate('/');
+  };
+
+  const getUserDisplayName = () => {
+    const email = localStorage.getItem('userEmail');
+    return email ? email.split('@')[0] : 'User';
   };
 
   // Don't show layout wrapper on login page
@@ -70,7 +79,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3">
+            <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center space-x-3">
               <div className="relative">
                 <Shield className="h-8 w-8 text-primary" />
                 <div className="absolute inset-0 animate-pulse-glow">
@@ -85,6 +94,18 @@ const Layout = ({ children }: LayoutProps) => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
+              {!isAuthenticated && (
+                <Link
+                  to="/"
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive('/')
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                  }`}
+                >
+                  <span>Home</span>
+                </Link>
+              )}
               {navigation
                 .filter(item => item.public || isAuthenticated)
                 .map((item) => (
@@ -93,7 +114,7 @@ const Layout = ({ children }: LayoutProps) => {
                   to={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive(item.href)
-                      ? 'bg-primary/10 text-primary suzani-accent'
+                      ? 'bg-primary/10 text-primary'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                   }`}
                 >
@@ -106,26 +127,25 @@ const Layout = ({ children }: LayoutProps) => {
             {/* User Menu & Mobile Toggle */}
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="hidden md:flex items-center space-x-2"
-                    onClick={() => navigate('/profile')}
-                  >
-                    <User className="h-4 w-4" />
-                    <span>{localStorage.getItem('userEmail')?.split('@')[0] || 'User'}</span>
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="hidden md:flex items-center space-x-2 text-muted-foreground hover:text-foreground"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </Button>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="hidden md:flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span>{getUserDisplayName()}</span>
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Link to="/login">
                   <Button size="sm" className="hidden md:flex">
@@ -150,6 +170,19 @@ const Layout = ({ children }: LayoutProps) => {
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-border/40 bg-card/50 backdrop-blur">
               <nav className="py-4 space-y-2">
+                {!isAuthenticated && (
+                  <Link
+                    to="/"
+                    className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors ${
+                      isActive('/')
+                        ? 'bg-primary/10 text-primary border-r-2 border-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span>Home</span>
+                  </Link>
+                )}
                 {navigation
                   .filter(item => item.public || isAuthenticated)
                   .map((item) => (
@@ -180,7 +213,7 @@ const Layout = ({ children }: LayoutProps) => {
                         }}
                       >
                         <User className="h-4 w-4 mr-2" />
-                        {localStorage.getItem('userEmail')?.split('@')[0] || 'User'}
+                        {getUserDisplayName()}
                       </Button>
                       <Button 
                         variant="ghost" 

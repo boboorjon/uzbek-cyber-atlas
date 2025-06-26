@@ -32,7 +32,7 @@ const Login = () => {
           title: "Login successful!",
           description: "Welcome back to CyberAcademy.",
         });
-        navigate('/');
+        navigate('/dashboard');
       } else {
         throw new Error('Invalid credentials');
       }
@@ -48,10 +48,13 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative">
-      {/* Background particles will show through from ParticleBackground */}
+    <div className="min-h-screen flex items-center justify-center p-4 relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Particle Background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(120,119,198,0.3),transparent_25%),radial-gradient(circle_at_80%_80%,rgba(120,119,198,0.3),transparent_25%),radial-gradient(circle_at_40%_40%,rgba(120,119,198,0.2),transparent_25%)]"></div>
+      </div>
       
-      <Card className="w-full max-w-md bg-card/90 backdrop-blur border-border/50 suzani-accent">
+      <Card className="w-full max-w-md bg-card/10 backdrop-blur-xl border-border/20 shadow-2xl">
         <CardHeader className="text-center space-y-4">
           <div className="flex items-center justify-center">
             <Shield className="h-12 w-12 text-primary" />
@@ -74,7 +77,7 @@ const Login = () => {
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-background/50 backdrop-blur"
                   required
                 />
               </div>
@@ -90,7 +93,7 @@ const Login = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 bg-background/50 backdrop-blur"
                   minLength={6}
                   required
                 />

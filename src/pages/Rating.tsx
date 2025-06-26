@@ -1,20 +1,20 @@
 
 import React, { useState } from 'react';
-import { Trophy, Medal, Award, Crown, Star, TrendingUp } from 'lucide-react';
+import { Trophy, Medal, Award, Crown, Star, TrendingUp, Swords, Zap, Shield as ShieldIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Rating = () => {
-  // Mock leaderboard data
+  // Mock leaderboard data with updated rank structure
   const [users] = useState([
     {
       id: 1,
       username: "CyberMaster_UZ",
       email: "master@cyberacademy.uz",
       points: 1247,
-      rank: "Guru",
+      rank: "Legend",
       country: "🇺🇿",
       avatar: "/placeholder.svg",
       challengesCompleted: 23,
@@ -36,7 +36,7 @@ const Rating = () => {
       username: "EthicalHacker_T",
       email: "hacker@example.com",
       points: 743,
-      rank: "Guru",
+      rank: "Hacker",
       country: "🇺🇿",
       avatar: "/placeholder.svg",
       challengesCompleted: 15,
@@ -47,7 +47,7 @@ const Rating = () => {
       username: "PenTester2024",
       email: "tester@example.com",
       points: 589,
-      rank: "Guru",
+      rank: "Grandmaster",
       country: "🇺🇿",
       avatar: "/placeholder.svg",
       challengesCompleted: 12,
@@ -123,8 +123,14 @@ const Rating = () => {
 
   const getRankIcon = (rank: string) => {
     switch (rank) {
-      case "Guru":
+      case "Legend":
         return <Crown className="h-4 w-4" />;
+      case "Guru":
+        return <Zap className="h-4 w-4" />;
+      case "Hacker":
+        return <Swords className="h-4 w-4" />;
+      case "Grandmaster":
+        return <ShieldIcon className="h-4 w-4" />;
       case "Master":
         return <Award className="h-4 w-4" />;
       case "Noob":
@@ -136,14 +142,39 @@ const Rating = () => {
 
   const getRankColor = (rank: string) => {
     switch (rank) {
+      case "Legend":
+        return "bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-lg";
       case "Guru":
-        return "bg-gradient-to-r from-yellow-400 to-orange-500 text-black";
+        return "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg";
+      case "Hacker":
+        return "bg-gradient-to-r from-green-400 to-cyan-500 text-black shadow-lg";
+      case "Grandmaster":
+        return "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg";
       case "Master":
-        return "bg-gradient-to-r from-blue-400 to-purple-500 text-white";
+        return "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-lg";
       case "Noob":
         return "bg-gradient-to-r from-gray-400 to-gray-600 text-white";
       default:
         return "bg-primary text-primary-foreground";
+    }
+  };
+
+  const getRankRequirements = (rank: string) => {
+    switch (rank) {
+      case "Legend":
+        return "1000+ points";
+      case "Guru":
+        return "750-999 points";
+      case "Hacker":
+        return "500-749 points";
+      case "Grandmaster":
+        return "350-499 points";
+      case "Master":
+        return "200-349 points";
+      case "Noob":
+        return "0-199 points";
+      default:
+        return "Unknown";
     }
   };
 
@@ -160,6 +191,15 @@ const Rating = () => {
     }
   };
 
+  const rankTiers = [
+    { name: "Legend", color: "from-purple-500 via-pink-500 to-red-500", icon: Crown, requirement: "1000+" },
+    { name: "Guru", color: "from-yellow-400 to-orange-500", icon: Zap, requirement: "750-999" },
+    { name: "Hacker", color: "from-green-400 to-cyan-500", icon: Swords, requirement: "500-749" },
+    { name: "Grandmaster", color: "from-indigo-500 to-purple-600", icon: ShieldIcon, requirement: "350-499" },
+    { name: "Master", color: "from-blue-400 to-purple-500", icon: Award, requirement: "200-349" },
+    { name: "Noob", color: "from-gray-400 to-gray-600", icon: Medal, requirement: "0-199" }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-3 mb-6">
@@ -170,40 +210,19 @@ const Rating = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-gradient-to-r from-yellow-400/10 to-orange-500/10 border-yellow-500/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Guru Rank</CardTitle>
-            <Crown className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">500+</div>
-            <p className="text-xs text-muted-foreground">points required</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-r from-blue-400/10 to-purple-500/10 border-blue-500/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Master Rank</CardTitle>
-            <Award className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">200-499</div>
-            <p className="text-xs text-muted-foreground">points range</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-r from-gray-400/10 to-gray-600/10 border-gray-500/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Noob Rank</CardTitle>
-            <Medal className="h-4 w-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0-199</div>
-            <p className="text-xs text-muted-foreground">points range</p>
-          </CardContent>
-        </Card>
+      {/* Rank Tiers Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        {rankTiers.map((tier) => (
+          <Card key={tier.name} className={`bg-gradient-to-r ${tier.color}/10 border-2 border-transparent bg-clip-padding backdrop-blur-sm`}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{tier.name}</CardTitle>
+              <tier.icon className="h-4 w-4" style={{ color: `rgb(${tier.color.includes('yellow') ? '234, 179, 8' : tier.color.includes('purple') ? '147, 51, 234' : tier.color.includes('green') ? '34, 197, 94' : tier.color.includes('blue') ? '59, 130, 246' : tier.color.includes('gray') ? '107, 114, 128' : '147, 51, 234'})` }} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground">{tier.requirement} pts</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Leaderboard Table */}
