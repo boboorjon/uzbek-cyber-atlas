@@ -48,7 +48,8 @@ const Dashboard = () => {
       level: "Beginner",
       enrolled: 1247,
       rating: 4.8,
-      thumbnail: "photo-1461749280684-dccba630e2f6"
+      thumbnail: "photo-1461749280684-dccba630e2f6",
+      category: "Web Security"
     },
     {
       id: 2,
@@ -59,7 +60,8 @@ const Dashboard = () => {
       level: "Advanced",
       enrolled: 856,
       rating: 4.9,
-      thumbnail: "photo-1518770660439-4636190af475"
+      thumbnail: "photo-1518770660439-4636190af475",
+      category: "Network Security"
     },
     {
       id: 3,
@@ -70,7 +72,8 @@ const Dashboard = () => {
       level: "Intermediate",
       enrolled: 923,
       rating: 4.7,
-      thumbnail: "photo-1488590528505-98d2b5aba04b"
+      thumbnail: "photo-1488590528505-98d2b5aba04b",
+      category: "Cryptography"
     }
   ];
 
