@@ -16,6 +16,8 @@ import Challenges from "./pages/Challenges";
 import Rating from "./pages/Rating";
 import Achievements from "./pages/Achievements";
 import Profile from "./pages/Profile";
+import Access from "./pages/Access";
+import ManageAccount from "./pages/ManageAccount";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "@/pages/AdminPanel.tsx";
 
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/rating" element={<Rating />} />
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/access" element={<Access />} />
+            <Route path="/manage-account" element={<ManageAccount />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { 
   Shield, 
   BookOpen, 
@@ -13,13 +14,22 @@ import {
   Users, 
   TrendingUp,
   PlayCircle,
-  Lock,
   CheckCircle2,
-  Star
+  Star,
+  Search,
+  Filter,
+  Globe,
+  Wifi,
+  Lock,
+  Code
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showAllCourses, setShowAllCourses] = useState(false);
+
   const userStats = {
     coursesCompleted: 8,
     totalCourses: 24,
@@ -64,6 +74,49 @@ const Dashboard = () => {
     }
   ];
 
+  const allCourses = [
+    ...featuredCourses,
+    {
+      id: 4,
+      title: "Secure Code Review & SAST",
+      description: "Learn to identify vulnerabilities in source code and implement secure coding practices.",
+      progress: 0,
+      duration: "14 hours",
+      level: "Advanced",
+      enrolled: 445,
+      rating: 4.8,
+      thumbnail: "photo-1531297484001-80022131f5a1",
+      category: "Secure Coding"
+    },
+    {
+      id: 5,
+      title: "Mobile Application Security",
+      description: "Security testing and secure development practices for iOS and Android applications.",
+      progress: 0,
+      duration: "11 hours",
+      level: "Intermediate",
+      enrolled: 678,
+      rating: 4.5,
+      thumbnail: "photo-1605810230434-7631ac76ec81",
+      category: "Web Security"
+    }
+  ];
+
+  const categories = [
+    { name: 'All', icon: BookOpen, count: 24 },
+    { name: 'Web Security', icon: Globe, count: 8 },
+    { name: 'Network Security', icon: Wifi, count: 6 },
+    { name: 'Cryptography', icon: Lock, count: 4 },
+    { name: 'Secure Coding', icon: Code, count: 3 }
+  ];
+
+  const filteredCourses = allCourses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   const recentAchievements = [
     { name: "First Steps", description: "Completed your first course", icon: "🎯", date: "2 days ago" },
     { name: "Web Warrior", description: "Mastered web security basics", icon: "🛡️", date: "1 week ago" },
@@ -73,7 +126,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-8 suzani-accent">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-background via-card to-background p-8 border border-border/50">
         <div className="relative z-10">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome back, John! 👋
@@ -86,9 +139,9 @@ const Dashboard = () => {
               <PlayCircle className="mr-2 h-5 w-5" />
               Continue Learning
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" onClick={() => setShowAllCourses(!showAllCourses)}>
               <BookOpen className="mr-2 h-5 w-5" />
-              Browse Courses
+              {showAllCourses ? 'Show Featured' : 'Browse All Courses'}
             </Button>
           </div>
         </div>
@@ -166,15 +219,59 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Featured Courses */}
+        {/* Courses Section */}
         <div className="lg:col-span-2">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Continue Learning</h2>
-            <p className="text-muted-foreground">Pick up where you left off or start something new</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              {showAllCourses ? 'All Courses' : 'Continue Learning'}
+            </h2>
+            <p className="text-muted-foreground">
+              {showAllCourses ? 'Explore our complete cybersecurity curriculum' : 'Pick up where you left off or start something new'}
+            </p>
           </div>
 
+          {/* Search and Filters - Only show when browsing all courses */}
+          {showAllCourses && (
+            <div className="space-y-4 mb-6">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search courses..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button variant="outline" className="lg:w-auto">
+                  <Filter className="mr-2 h-4 w-4" />
+                  More Filters
+                </Button>
+              </div>
+
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <Button
+                    key={category.name}
+                    variant={selectedCategory === category.name ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category.name)}
+                    className="flex items-center gap-2"
+                  >
+                    <category.icon className="h-4 w-4" />
+                    {category.name}
+                    <Badge variant="secondary" className="ml-1">
+                      {category.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4">
-            {featuredCourses.map((course) => (
+            {(showAllCourses ? filteredCourses : featuredCourses).map((course) => (
               <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30">
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-48 h-32 md:h-auto bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
@@ -242,7 +339,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {recentAchievements.map((achievement, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 suzani-accent">
+                <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
                   <div className="text-2xl">{achievement.icon}</div>
                   <div className="flex-1">
                     <h4 className="font-medium text-foreground">{achievement.name}</h4>

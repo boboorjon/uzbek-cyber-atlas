@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Shield, BookOpen, Trophy, User, Menu, X, Target, LogOut, TrendingUp, ChevronDown } from 'lucide-react';
+import { Shield, BookOpen, Trophy, User, Menu, X, Target, LogOut, TrendingUp, ChevronDown, Settings, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import ParticleBackground from './ParticleBackground';
@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 interface LayoutProps {
@@ -135,11 +136,20 @@ const Layout = ({ children }: LayoutProps) => {
                       <ChevronDown className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => navigate('/profile')}>
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/access')}>
+                      <Wifi className="h-4 w-4 mr-2" />
+                      Access
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/manage-account')}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Manage Account
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
@@ -213,7 +223,29 @@ const Layout = ({ children }: LayoutProps) => {
                         }}
                       >
                         <User className="h-4 w-4 mr-2" />
-                        {getUserDisplayName()}
+                        Profile
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start mb-2"
+                        onClick={() => {
+                          navigate('/access');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <Wifi className="h-4 w-4 mr-2" />
+                        Access
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start mb-2"
+                        onClick={() => {
+                          navigate('/manage-account');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Manage Account
                       </Button>
                       <Button 
                         variant="ghost" 

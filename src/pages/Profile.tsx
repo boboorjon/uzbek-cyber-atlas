@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import { 
   User, 
   Mail, 
@@ -20,7 +21,15 @@ import {
   BookOpen,
   Trophy,
   Target,
-  TrendingUp
+  TrendingUp,
+  Shield,
+  Code,
+  Network,
+  Lock,
+  Zap,
+  Award,
+  Star,
+  CheckCircle2
 } from 'lucide-react';
 
 const Profile = () => {
@@ -47,49 +56,89 @@ const Profile = () => {
     lastActive: '2024-01-20'
   };
 
-  const learningHistory = [
+  const skillMatrix = [
+    { name: 'Web Security', level: 85, color: 'bg-blue-500' },
+    { name: 'Network Security', level: 72, color: 'bg-green-500' },
+    { name: 'Cryptography', level: 68, color: 'bg-purple-500' },
+    { name: 'Penetration Testing', level: 90, color: 'bg-red-500' },
+    { name: 'Malware Analysis', level: 55, color: 'bg-yellow-500' },
+    { name: 'Digital Forensics', level: 48, color: 'bg-pink-500' }
+  ];
+
+  const completedCourses = [
     {
       id: 1,
-      course: 'Web Application Security Fundamentals',
+      title: 'Web Application Security Fundamentals',
       completedDate: '2024-01-15',
       grade: 'A',
-      timeSpent: '8 hours',
+      progress: 100,
       category: 'Web Security'
     },
     {
       id: 2,
-      course: 'Network Security Essentials',
+      title: 'Network Security Essentials',
       completedDate: '2024-01-10',
       grade: 'A-',
-      timeSpent: '12 hours',
+      progress: 100,
       category: 'Network Security'
     },
     {
       id: 3,
-      course: 'Ethical Hacking Basics',
+      title: 'Ethical Hacking Basics',
       completedDate: '2023-12-20',
       grade: 'B+',
-      timeSpent: '15 hours',
+      progress: 100,
       category: 'Penetration Testing'
-    },
-    {
-      id: 4,
-      course: 'Cryptography Fundamentals',
-      completedDate: '2023-12-01',
-      grade: 'A',
-      timeSpent: '10 hours',
-      category: 'Cryptography'
     }
   ];
 
-  const handleSave = () => {
-    // Here you would typically save to backend
-    console.log('Saving profile data:', formData);
-    setIsEditing(false);
+  const badges = [
+    { name: 'First Steps', icon: '🎯', rarity: 'Common', description: 'Complete your first course' },
+    { name: 'Web Warrior', icon: '🛡️', rarity: 'Rare', description: 'Master web security fundamentals' },
+    { name: 'Streak Master', icon: '🔥', rarity: 'Epic', description: '15-day learning streak' },
+    { name: 'Code Breaker', icon: '💻', rarity: 'Legendary', description: 'Complete advanced cryptography' }
+  ];
+
+  const trophies = [
+    { name: 'Monthly Champion', icon: '🏆', date: '2024-01-01', description: 'Top performer in January' },
+    { name: 'CTF Winner', icon: '🥇', date: '2023-12-15', description: 'Won December CTF competition' }
+  ];
+
+  // Generate activity data for the last 365 days
+  const generateActivityData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 364; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const activity = Math.floor(Math.random() * 5); // 0-4 activity levels
+      data.push({
+        date: date.toISOString().split('T')[0],
+        activity: activity
+      });
+    }
+    return data;
   };
 
-  const handleCancel = () => {
-    // Reset form data to original values
+  const activityData = generateActivityData();
+
+  const getActivityColor = (level: number) => {
+    const colors = ['bg-gray-800', 'bg-primary/30', 'bg-primary/50', 'bg-primary/70', 'bg-primary'];
+    return colors[level] || colors[0];
+  };
+
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case 'Common': return 'border-gray-500';
+      case 'Rare': return 'border-blue-500';
+      case 'Epic': return 'border-purple-500';
+      case 'Legendary': return 'border-yellow-500';
+      default: return 'border-gray-500';
+    }
+  };
+
+  const handleSave = () => {
+    console.log('Saving profile data:', formData);
     setIsEditing(false);
   };
 
@@ -103,7 +152,7 @@ const Profile = () => {
   return (
     <div className="space-y-8">
       {/* Profile Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-8 suzani-accent">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-background via-card to-background p-8 border border-border/50">
         <div className="relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <Avatar className="h-24 w-24 border-4 border-primary/30">
@@ -177,14 +226,193 @@ const Profile = () => {
       </div>
 
       {/* Profile Content */}
-      <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="personal">Personal Info</TabsTrigger>
-          <TabsTrigger value="learning">Learning History</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="skills">Skills</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="courses">Courses</TabsTrigger>
+          <TabsTrigger value="badges">Badges</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="personal" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <div>
+                    <p className="font-medium">Completed Web Security Course</p>
+                    <p className="text-sm text-muted-foreground">2 days ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">Earned "Streak Master" badge</p>
+                    <p className="text-sm text-muted-foreground">1 week ago</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Recent Trophies
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {trophies.map((trophy, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                    <div className="text-2xl">{trophy.icon}</div>
+                    <div>
+                      <p className="font-medium">{trophy.name}</p>
+                      <p className="text-sm text-muted-foreground">{trophy.description}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(trophy.date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="skills" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Skill Matrix
+              </CardTitle>
+              <CardDescription>
+                Your expertise across different cybersecurity domains
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {skillMatrix.map((skill, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{skill.name}</span>
+                    <span className="text-sm text-muted-foreground">{skill.level}%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-3">
+                    <div 
+                      className={`h-3 rounded-full ${skill.color} transition-all duration-500`}
+                      style={{ width: `${skill.level}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Yearly Activity
+              </CardTitle>
+              <CardDescription>
+                Your learning activity over the past year
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-53 gap-1 mb-4">
+                {activityData.map((day, index) => (
+                  <div
+                    key={index}
+                    className={`w-3 h-3 rounded-sm ${getActivityColor(day.activity)}`}
+                    title={`${day.date}: ${day.activity} activities`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>Less</span>
+                <div className="flex items-center gap-1">
+                  {[0, 1, 2, 3, 4].map((level) => (
+                    <div key={level} className={`w-3 h-3 rounded-sm ${getActivityColor(level)}`} />
+                  ))}
+                </div>
+                <span>More</span>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="courses" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Completed Courses</CardTitle>
+              <CardDescription>
+                Your learning journey and achievements
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {completedCourses.map((course) => (
+                  <div key={course.id} className="flex items-center justify-between p-4 border border-border/50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-foreground">{course.title}</h4>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                        <span>Completed: {new Date(course.completedDate).toLocaleDateString()}</span>
+                        <Badge variant="outline">{course.category}</Badge>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-primary">{course.grade}</div>
+                      <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto mt-1" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="badges" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Earned Badges
+              </CardTitle>
+              <CardDescription>
+                Achievements and milestones you've unlocked
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {badges.map((badge, index) => (
+                  <div key={index} className={`p-4 border-2 ${getRarityColor(badge.rarity)} rounded-lg bg-card/50`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="text-3xl">{badge.icon}</div>
+                      <div>
+                        <h4 className="font-medium">{badge.name}</h4>
+                        <Badge variant="outline" className={`text-xs ${getRarityColor(badge.rarity)}`}>
+                          {badge.rarity}
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{badge.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -279,57 +507,11 @@ const Profile = () => {
                     <Save className="h-4 w-4 mr-2" />
                     Save Changes
                   </Button>
-                  <Button onClick={handleCancel} variant="outline" size="sm">
+                  <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
                     Cancel
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="learning" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Learning History</CardTitle>
-              <CardDescription>
-                Your completed courses and achievements
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {learningHistory.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-4 border border-border/50 rounded-lg">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">{item.course}</h4>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                        <span>Completed: {new Date(item.completedDate).toLocaleDateString()}</span>
-                        <span>Time: {item.timeSpent}</span>
-                        <Badge variant="outline">{item.category}</Badge>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-semibold text-primary">{item.grade}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="preferences" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Learning Preferences</CardTitle>
-              <CardDescription>
-                Customize your learning experience
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-sm text-muted-foreground">
-                Preference settings will be implemented with backend integration.
-              </div>
             </CardContent>
           </Card>
         </TabsContent>

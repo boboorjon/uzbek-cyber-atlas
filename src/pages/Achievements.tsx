@@ -109,7 +109,7 @@ const Achievements = () => {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 p-8 suzani-accent">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-background via-card to-background p-8 border border-border/50">
         <div className="relative z-10">
           <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
             <Trophy className="h-8 w-8 text-primary" />
