@@ -20,6 +20,7 @@ import Access from "./pages/Access";
 import ManageAccount from "./pages/ManageAccount";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "@/pages/AdminPanel.tsx";
+import AdminLogin from "@/pages/AdminLogin.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/modules" element={<Modules />} />
